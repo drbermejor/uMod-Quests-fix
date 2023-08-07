@@ -11,10 +11,11 @@ using UnityEngine;
 
 // ToDo: ZLevels integration (waiting for ZLevels api implementation)
 // ToDo: Add Cooldown option for Delivery
+// Fixed OnItemCraftFinished for rust update 03/08/23
 
 namespace Oxide.Plugins
 {
-    [Info("Quests", "Gonzi", "2.4.2")]
+    [Info("Quests", "Gonzi", "2.4.4")]
     [Description("Creates quests for players to go on to earn rewards, complete with a GUI menu")]
     public class Quests : RustPlugin
     {
@@ -51,10 +52,10 @@ namespace Oxide.Plugins
         private Dictionary<ulong, bool> AddVendor = new Dictionary<ulong, bool>();
 
         private Dictionary<QuestType, List<string>> AllObjectives = new Dictionary<QuestType, List<string>>();
-        private Dictionary<uint, Dictionary<ulong, int>> HeliAttackers = new Dictionary<uint, Dictionary<ulong, int>>();
+        private Dictionary<NetworkableId, Dictionary<ulong, int>> HeliAttackers = new Dictionary<NetworkableId, Dictionary<ulong, int>>();
 
         private Dictionary<ulong, List<string>> OpenUI = new Dictionary<ulong, List<string>>();
-        private Dictionary<uint, ulong> Looters = new Dictionary<uint, ulong>();
+        private Dictionary<ItemId, ulong> Looters = new Dictionary<ItemId, ulong>();
 
         private List<ulong> StatsMenu = new List<ulong>();
         private List<ulong> OpenMenuBind = new List<ulong>();
@@ -405,9 +406,10 @@ namespace Oxide.Plugins
         }
 
         //Craft
-        void OnItemCraftFinished(ItemCraftTask task, Item item)
+        void OnItemCraftFinished(ItemCraftTask task, Item item, ItemCrafter crafter)
         {
-            var player = task.owner;
+			
+            var player = crafter.owner;
             if (player != null)
                 if (hasQuests(player.userID) && isQuestItem(player.userID, item.info.shortname, QuestType.Craft))
                     ProcessProgress(player, QuestType.Craft, item.info.shortname, item.amount);
@@ -1180,7 +1182,7 @@ namespace Oxide.Plugins
             SaveVendorData();
         }
 
-        private ulong GetLastAttacker(uint id)
+        private ulong GetLastAttacker(NetworkableId id)
         {
             int hits = 0;
             ulong majorityPlayer = 0U;
