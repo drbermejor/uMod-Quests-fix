@@ -9,13 +9,10 @@ using Oxide.Core.Plugins;
 using Oxide.Game.Rust.Cui;
 using UnityEngine;
 
-// ToDo: ZLevels integration (waiting for ZLevels api implementation)
-// ToDo: Add Cooldown option for Delivery
-// Fixed OnItemCraftFinished for rust update 03/08/23
 
 namespace Oxide.Plugins
 {
-    [Info("Quests", "Gonzi", "2.4.4")]
+    [Info("Quests", "Gonzi_fix", "2.4.4")]
     [Description("Creates quests for players to go on to earn rewards, complete with a GUI menu")]
     public class Quests : RustPlugin
     {
@@ -982,8 +979,8 @@ namespace Oxide.Plugins
                     if (string.IsNullOrEmpty(reward.ShortName)) return true;
                     var definition = FindItemDefinition(reward.ShortName);
                     if (definition != null)
-                    {
-                        if (player.inventory.AllItems().Count() >= 30) return false;
+                    {	
+						if (player.inventory.containerMain.itemList.Count >= 30) return false;
                         var item = ItemManager.Create(definition, (int)reward.Amount, reward.Skin);
                         if (item != null)
                         {
